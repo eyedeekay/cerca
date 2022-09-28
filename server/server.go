@@ -117,7 +117,7 @@ func (h RequestHandler) IsLoggedIn(req *http.Request) (bool, int) {
 }
 
 var (
-	templateFuncs = template.FuncMap{
+	TemplateFuncs = template.FuncMap{
 		"formatDateTime": func(t time.Time) string {
 			return t.Format("2006-01-02 15:04:05")
 		},
@@ -138,7 +138,7 @@ var (
 		},
 	}
 
-	templates = template.Must(generateTemplates())
+	Templates = template.Must(generateTemplates())
 )
 
 func generateTemplates() (*template.Template, error) {
@@ -162,7 +162,7 @@ func generateTemplates() (*template.Template, error) {
 	rootTemplate := template.New("root")
 
 	for _, view := range views {
-		newTemplate, err := rootTemplate.Funcs(templateFuncs).ParseFS(cercaHTML.Templates, fmt.Sprintf("%s.html", view))
+		newTemplate, err := rootTemplate.Funcs(TemplateFuncs).ParseFS(cercaHTML.Templates, fmt.Sprintf("%s.html", view))
 		if err != nil {
 			return nil, fmt.Errorf("could not get files: %w", err)
 		}
@@ -178,7 +178,7 @@ func (h RequestHandler) renderView(res http.ResponseWriter, viewName string, dat
 	}
 
 	view := fmt.Sprintf("%s.html", viewName)
-	if err := templates.ExecuteTemplate(res, view, data); err != nil {
+	if err := Templates.ExecuteTemplate(res, view, data); err != nil {
 		util.Check(err, "rendering %q view", view)
 	}
 }
