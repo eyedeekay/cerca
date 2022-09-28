@@ -82,6 +82,10 @@ type RequestHandler struct {
 	allowlist []string // allowlist of domains valid for forum registration
 }
 
+func NewRequestHandler(db database.DB, sessionKey string, allowlist []string) RequestHandler {
+	return RequestHandler{&db, session.New(sessionKey, developing), allowlist}
+}
+
 var developing bool
 
 func dump(err error) {
@@ -810,7 +814,7 @@ func NewServer(allowlist []string, sessionKey, dir string) (*CercaForum, error) 
 
 	/* note: be careful with trailing slashes; go's default handler is a bit sensitive */
 	// TODO (2022-01-10): introduce middleware to make sure there is never an issue with trailing slashes
-	handler := RequestHandler{&db, session.New(sessionKey, developing), allowlist}
+	handler := NewRequestHandler(db, sessionKey, allowlist)
 	s.ServeMux.HandleFunc("/reset/", handler.ResetPasswordRoute)
 	s.ServeMux.HandleFunc("/about", handler.AboutRoute)
 	s.ServeMux.HandleFunc("/logout", handler.LogoutRoute)
