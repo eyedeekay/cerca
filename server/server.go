@@ -1,11 +1,11 @@
 package server
 
 import (
-	"context"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -20,8 +20,6 @@ import (
 	cercaHTML "cerca/html"
 	"cerca/server/session"
 	"cerca/util"
-
-	"github.com/carlmjohnson/requests"
 )
 
 /* TODO (2022-01-03): include csrf token via gorilla, or w/e, when rendering */
@@ -302,16 +300,17 @@ func (h RequestHandler) LoginRoute(res http.ResponseWriter, req *http.Request) {
 
 // downloads the content at the verification link and compares it to the verification code. returns true if the verification link content contains the verification code somewhere
 func hasVerificationCode(link, verification string) bool {
-	var linkBody string
-	err := requests.
-		URL(link).
-		ToString(&linkBody).
-		Fetch(context.Background())
+	resp, err := http.Get(link)
 	if err != nil {
 		fmt.Println(util.Eout(err, "HasVerificationCode"))
 		return false
 	}
-
+	linkBodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(util.Eout(err, "HasVerificationCode"))
+		return false
+	}
+	linkBody := string(linkBodyBytes)
 	return strings.Contains(strings.TrimSpace(linkBody), strings.TrimSpace(verification))
 }
 
