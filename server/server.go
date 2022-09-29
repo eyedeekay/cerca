@@ -311,6 +311,7 @@ func hasVerificationCode(link, verification string) bool {
 		return false
 	}
 	linkBody := string(linkBodyBytes)
+	log.Println("checking if", linkBody, "is in", verification)
 	return strings.Contains(strings.TrimSpace(linkBody), strings.TrimSpace(verification))
 }
 
